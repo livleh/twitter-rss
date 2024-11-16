@@ -212,7 +212,8 @@ function generateList() {
       const feed: AtomFeed = parser.parse(feedText)
 
       const title = feed.feed.title
-      const description = feed.feed.subtitle || ''
+      const description = feed.feed.subtitle ?? '' // Used ?? instead of ||
+
       return `<li><a href='${encodeURIComponent(
         file,
       )}'>${title}</a>: <code>${description}</code></li>`
