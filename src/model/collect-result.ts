@@ -1,19 +1,15 @@
 export interface Item {
+  id: string
   title: string
-  link: string
-  description?: string
-  'content:encoded'?: string
-
-  author?: string
-  category?: string
-  comments?: string
-  enclosure?: string
-  guid?: {
-    '@_isPermaLink?': boolean
-    '#text'?: string
+  updated: string
+  content: string
+  link: {
+    '@_href': string
   }
-  pubDate?: string
-  source?: string
+  published?: string
+  author?: {
+    name: string
+  }
 }
 
 export default interface CollectResult {

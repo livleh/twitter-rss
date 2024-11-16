@@ -8,8 +8,7 @@ import { SearchType, Twitter } from '@book000/twitterts'
 type SearchesModel = Record<string, string>
 
 function sanitizeFileName(fileName: string) {
-  // Windows / Linuxで使えない文字列をアンダーバーに置き換える
-  // スペースをアンダーバーに置き換える
+  // Replace invalid characters for filenames
   return fileName.replaceAll(/[ "*/:<>?\\|]/g, '').trim()
 }
 
@@ -87,6 +86,7 @@ async function generateRSS() {
       const builder = new XMLBuilder({
         ignoreAttributes: false,
         format: true,
+        suppressEmptyNode: true,
       })
 
       const statuses = await twitter.searchTweets({
@@ -100,63 +100,74 @@ async function generateRSS() {
             throw new Error('status.user is not FullUser')
           }
 
-          // タイトルは投稿日にする
-          // 微妙だけど、とりあえず9時間足す
-          const title = new Date(
-            new Date(status.created_at).getTime() + 9 * 60 * 60 * 1000,
-          )
-            .toISOString()
-            .replace(/T/, ' ')
-            .replace(/Z/, '')
-            .replace(/\.\d+$/, '')
-
           const content = getContent(status)
 
           return {
-            title,
-            link:
+            id:
               'https://twitter.com/' +
               status.user.screen_name +
               '/status/' +
               status.id_str,
-            'content:encoded': content,
-            author: status.user.name + ' (@' + status.user.screen_name + ')',
-            pubDate: new Date(status.created_at).toUTCString(),
+            title: status.full_text,
+            updated: new Date(status.created_at).toISOString(),
+            content,
+            link: {
+              '@_href':
+                'https://twitter.com/' +
+                status.user.screen_name +
+                '/status/' +
+                status.id_str,
+            },
+            published: new Date(status.created_at).toISOString(),
+            author: {
+              name: status.user.name,
+            },
           }
         })
 
-      const obj = {
+      const feed = {
         '?xml': {
           '@_version': '1.0',
-          // eslint-disable-next-line unicorn/text-encoding-identifier-case
           '@_encoding': 'UTF-8',
         },
-        rss: {
-          '@_version': '2.0',
-          '@_xmlns:dc': 'http://purl.org/dc/elements/1.1/',
-          '@_xmlns:content': 'http://purl.org/rss/1.0/modules/content/',
-          '@_xmlns:atom': 'http://www.w3.org/2005/Atom',
-          channel: {
-            title: key,
-            description: searchWord,
-            link:
-              'https://twitter.com/search?q=' +
-              encodeURIComponent(searchWord) +
-              '&f=live',
-
-            generator: 'book000/twitter-rss',
-            language: 'ja',
+        feed: {
+          '@_xmlns': 'http://www.w3.org/2005/Atom',
+          'id':
+            'https://twitter.com/search?q=' +
+            encodeURIComponent(searchWord) +
+            '&f=live',
+          'title': key,
+          'updated': new Date().toISOString(),
+          'author': {
+            'name': '', // Optionally set the author's name here
+            'email': '', // Optionally set the author's email here
           },
-          item: items,
+          'link': [
+            {
+              '@_href':
+                'https://twitter.com/search?q=' +
+                encodeURIComponent(searchWord) +
+                '&f=live',
+              '@_rel': 'alternate',
+            },
+            {
+              '@_href': 'https://yourdomain.com/output/' + encodeURIComponent(sanitizeFileName(key)) + '.xml',
+              '@_rel': 'self',
+            },
+          ],
+          'generator': {
+            '@_uri': 'https://yourappwebsite.com',
+            '@_version': '1.0.0',
+            '#text': 'YourAppName',
+          },
+          'entry': items,
         },
       }
 
-      const feed: {
-        toString: () => string
-      } = builder.build(obj)
+      const xmlFeed = builder.build(feed)
 
       const filename = sanitizeFileName(key)
-      fs.writeFileSync('output/' + filename + '.xml', feed.toString())
+      fs.writeFileSync('output/' + filename + '.xml', xmlFeed)
       const endAt = new Date()
       logger.info(
         `📝 Generated: ${filename}.xml. Found ${items.length} items (${
@@ -185,16 +196,9 @@ function generateList() {
         ignoreAttributes: false,
       })
 
-      const feed: {
-        rss: {
-          channel: {
-            title: string
-            description: string
-          }
-        }
-      } = parser.parse(fs.readFileSync('output/' + file, 'utf8'))
-      const title = feed.rss.channel.title
-      const description = feed.rss.channel.description
+      const feed = parser.parse(fs.readFileSync('output/' + file, 'utf8'))
+      const title = feed.feed.title
+      const description = feed.feed.subtitle || ''
       return `<li><a href='${encodeURIComponent(
         file,
       )}'>${title}</a>: <code>${description}</code></li>`
