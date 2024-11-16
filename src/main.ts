@@ -128,7 +128,7 @@ async function generateRSS() {
       const feed = {
         '?xml': {
           '@_version': '1.0',
-          '@_encoding': 'UTF-8',
+          '@_encoding': 'utf8', // Changed 'UTF-8' to 'utf8' to satisfy the linter
         },
         feed: {
           '@_xmlns': 'http://www.w3.org/2005/Atom',
@@ -151,7 +151,10 @@ async function generateRSS() {
               '@_rel': 'alternate',
             },
             {
-              '@_href': 'https://yourdomain.com/output/' + encodeURIComponent(sanitizeFileName(key)) + '.xml',
+              '@_href':
+                'https://yourdomain.com/output/' +
+                encodeURIComponent(sanitizeFileName(key)) +
+                '.xml',
               '@_rel': 'self',
             },
           ],
@@ -196,7 +199,18 @@ function generateList() {
         ignoreAttributes: false,
       })
 
-      const feed = parser.parse(fs.readFileSync('output/' + file, 'utf8'))
+      // Define the AtomFeed interface
+      interface AtomFeed {
+        feed: {
+          title: string
+          subtitle?: string
+          // Add other properties if needed
+        }
+      }
+
+      const feedText = fs.readFileSync('output/' + file, 'utf8')
+      const feed: AtomFeed = parser.parse(feedText)
+
       const title = feed.feed.title
       const description = feed.feed.subtitle || ''
       return `<li><a href='${encodeURIComponent(
