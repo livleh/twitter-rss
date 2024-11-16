@@ -132,17 +132,17 @@ async function generateRSS() {
         },
         feed: {
           '@_xmlns': 'http://www.w3.org/2005/Atom',
-          'id':
+          id:
             'https://twitter.com/search?q=' +
             encodeURIComponent(searchWord) +
             '&f=live',
-          'title': key,
-          'updated': new Date().toISOString(),
-          'author': {
-            'name': '', // Optionally set the author's name here
-            'email': '', // Optionally set the author's email here
+          title: key,
+          updated: new Date().toISOString(),
+          author: {
+            name: '', // Optionally set the author's name here
+            email: '', // Optionally set the author's email here
           },
-          'link': [
+          link: [
             {
               '@_href':
                 'https://twitter.com/search?q=' +
@@ -158,12 +158,12 @@ async function generateRSS() {
               '@_rel': 'self',
             },
           ],
-          'generator': {
+          generator: {
             '@_uri': 'https://yourappwebsite.com',
             '@_version': '1.0.0',
             '#text': 'YourAppName',
           },
-          'entry': items,
+          entry: items,
         },
       }
 
