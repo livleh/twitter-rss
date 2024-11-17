@@ -1,9 +1,11 @@
 {
-  "一途ビッチちゃん": "一途ビッチちゃん from:iro_ironon filter:images exclude:retweets",
-  "#赤松健の国会にっき": "#赤松健の国会にっき from:KenAkamatsu filter:images exclude:retweets",
-  "まいにちめんだこ": "from:daily_mendako filter:images exclude:retweets",
-  "さんぽんた": "今日のさんぽんた from:rikirosso filter:images exclude:retweets",
-  "がい子くじん": "from:gaiko_kujin filter:images exclude:retweets",
-  "せかねこ": "from:sekaneko13 filter:images exclude:retweets",
-  "Mia Mulder": "from:Potatopolitics"
+  "Mia Mulder": "from:Potatopolitics",
+  "Andrej Karpathy": "from:karpathy",
+  "Lynn Cole": "from:PriestessOfDada",
+  "AK": "from:_akhaliq",
+  "Heather Cooper": "from:HBCoop_",
+  "Nick St. Pierre": "from:nickfloats",
+  "Anne-Laure Le Cunff": "from:neuranne",
+  "Nominal Naomi": "from:nominalnaomi",
+  "Yann LeCun": "from:ylecun"
 }
